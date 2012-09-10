@@ -23,7 +23,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Dialog.ModalityType;
 
-public class LoginView extends JDialog {
+public class LoginView extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField jtfPort;
@@ -45,21 +45,43 @@ public class LoginView extends JDialog {
 		jtfPort.setText("" + loginController.getUserPort());
 	}
 	
+	public boolean run() {
+		this.setVisible(true);
+		init();
+		try {
+			synchronized (this) {
+				this.wait();
+			}			
+		} catch (InterruptedException e) {
+		}
+		return this.exitStatus;
+	}	
+	
 	public boolean getExitStatus() {
 		return exitStatus;
 	}
+	
+	private void done(boolean exitStatus) {
+		this.exitStatus = exitStatus;
+		this.setVisible(false);
+		synchronized (this) {
+			this.notify();
+		}				
+	}	
 
 	/**
 	 * Create the frame.
 	 */
 	public LoginView() {
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		setResizable(false);
-		setModal(true);
+		setResizable(false);		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 				init();
+			}
+			@Override
+			public void windowClosed(WindowEvent e) {
+				done(exitStatus);
 			}
 		});
 		setTitle("iChatty login");
@@ -128,9 +150,8 @@ public class LoginView extends JDialog {
 				}
 				
 				loginController.setUserName(userString);
-				loginController.setUserPort(port);
-				exitStatus = true;
-				LoginView.this.setVisible(false);				
+				loginController.setUserPort(port);				
+				done(true);				
 			}
 		});
 		GridBagConstraints gbc_jbLogin = new GridBagConstraints();
@@ -142,7 +163,7 @@ public class LoginView extends JDialog {
 		JButton jbExit = new JButton("Exit");
 		jbExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				LoginView.this.setVisible(false);
+				done(false);
 			}
 		});
 		GridBagConstraints gbc_jbExit = new GridBagConstraints();

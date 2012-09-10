@@ -28,11 +28,12 @@ public class Application {
 	
 	String dataPath = "./chatty";
 	
+	
 	protected boolean login() {
 		loginView = new LoginView();
 		loginController.setDataPath(dataPath);
 		loginView.setController(loginController);				
-		loginView.setVisible(true);		
+		loginView.run();		
 		return loginView.getExitStatus();
 	}
 	
@@ -53,7 +54,7 @@ public class Application {
 			chatController.setNetworkProvider(netProvider);
 			
 			chatView.setController(chatController);
-			chatView.setVisible(true);
+			chatView.run();
 		} catch (Exception e) {
 			System.out.println("failed to start chat");
 			return false;
@@ -65,58 +66,18 @@ public class Application {
 		return chatView.getExitStatus();
 	}
 	
-	public void run() {
+	public void run() {		
 		while (login()) {
 			System.out.println("login as: '" + loginController.getUserName() 
 					+ "' at '" + loginController.getUserPort() + "'");
 			if (!start()) {
 				break;
 			}
-		}		
+		}	
 	}
 	
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) {		
 		new Application().run();
-		System.exit(0);
-		
-		/*
-		try {
-			IUser me = new User("kernel", "kernel");
-			IUser xu = new User("xu", "xu");					
-		
-			FileHistoryProvider.Settings hps = FileHistoryProvider.getDefaultSettings();
-			hps.basePath = "./chatty";
-			IHistoryProvider hp = FileHistoryProvider.getInstance(me, hps);
-		
-			UdpNetworkProvider.Settings nps = UdpNetworkProvider.getDefaultSettings();
-			nps.port = 1234;		
-			INetworkProvider np = UdpNetworkProvider.getInstance(nps);
-			
-			Controller c = new Controller(me);			
-			c.setHistoryProvider(hp);
-			c.setNetworkProvider(np);
-			
-			c.setMessageListener(new IMessageListener() {				
-				@Override
-				public void onMessage(IMessage m) {
-					System.out.println(m);					
-				}
-			});
-			
-			c.setUser(me);
-			c.setNetworkSettings("localhost:1234");
-			c.sendMessage("hello!!!");						
-			
-			Thread.sleep(1000);
-			
-			np.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
-		
+		System.exit(0);		
 	}
 }

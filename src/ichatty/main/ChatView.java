@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class ChatView extends JDialog {
+public class ChatView extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField jtfPort;
@@ -71,8 +71,28 @@ public class ChatView extends JDialog {
 		}
 	}
 	
+	public boolean run() {
+		this.setVisible(true);
+		init();
+		try {
+			synchronized (this) {
+				this.wait();
+			}			
+		} catch (InterruptedException e) {
+		}
+		return this.exitStatus;
+	}	
+	
 	public boolean getExitStatus() {
 		return exitStatus;
+	}
+	
+	private void done(boolean exitStatus) {
+		this.exitStatus = exitStatus;
+		this.setVisible(false);
+		synchronized (this) {
+			this.notify();
+		}
 	}
 	
 	
@@ -124,8 +144,12 @@ public class ChatView extends JDialog {
 			public void windowOpened(WindowEvent arg0) {
 				init();
 			}
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				done(exitStatus);
+			}
 		});
-		setModal(true);
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 473, 427);
 		contentPane = new JPanel();
@@ -264,8 +288,7 @@ public class ChatView extends JDialog {
 		JButton jbLogout = new JButton("Logout");
 		jbLogout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				exitStatus = true;
-				ChatView.this.setVisible(false);
+				done(true);
 			}
 		});
 		GridBagConstraints gbc_jbLogout = new GridBagConstraints();
@@ -278,7 +301,7 @@ public class ChatView extends JDialog {
 		JButton jbExit = new JButton("Exit");
 		jbExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ChatView.this.setVisible(false);
+				done(false);
 			}
 		});
 		GridBagConstraints gbc_jbExit = new GridBagConstraints();

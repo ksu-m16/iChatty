@@ -124,9 +124,12 @@ public class ChatController {
 		}		
 	}
 	
-	public Set<IUser> getAllUsers() {		
+	public Set<IUser> getAllUsers() {
 		File f = new File("./chatty/" + me.getId());
 		String[] items = f.list();
+		if (items == null) {
+			return new TreeSet<IUser>();
+		}
 		
 		Set<IUser> us = new TreeSet<IUser>();
 		for (String item : items) {
