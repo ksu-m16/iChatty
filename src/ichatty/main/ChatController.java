@@ -16,14 +16,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 
-public class Controller {
+public class ChatController {
 	
-	public Controller(IUser me) {
+	public ChatController(IUser me) {
 		this.me = me;
 	}
 	
@@ -57,6 +58,9 @@ public class Controller {
 	};		
 	
 	public void setUser(IUser u) {
+		
+		System.out.println("set user: " + u.getName());
+		
 		user = u;
 		history = hp.getHistory(u);		
 		if (network != null) {
@@ -71,7 +75,7 @@ public class Controller {
 	}	
 	
 	private File getNetworkSettingsFile() {
-		return new File("./chatty/" + me.getId() + "/" + user.getId() + "." + np.getName() + ".settings");
+		return new File("./chatty/" + me.getId() + "/" + user.getId() + "/" + np.getName() + ".settings");
 	}
 	
 	private void storeNetworkSettings(String s) throws IOException {
@@ -82,7 +86,7 @@ public class Controller {
 			osw.write(s);
 		} finally {
 			osw.close();
-		}
+		}		
 	}
 	
 	private String readNetworkSettings() throws IOException {
@@ -110,7 +114,11 @@ public class Controller {
 	
 	public String getNetworkSettings() {
 		try {
-			return readNetworkSettings();
+			String settings = readNetworkSettings();
+			if (settings != null) {
+				np.setUserSettings(user.getId(), settings);
+			}
+			return settings;
 		} catch(IOException ex) {
 			return null;
 		}		
@@ -122,6 +130,9 @@ public class Controller {
 		
 		Set<IUser> us = new TreeSet<IUser>();
 		for (String item : items) {
+			if (item.startsWith(".")) {
+				continue;
+			}			
 			if (!new File(f.getPath() + "/" + item).isDirectory()) {
 				continue;
 			}
@@ -145,6 +156,9 @@ public class Controller {
 	}
 	
 	public void sendMessage(String text) throws IOException {
+		if (network == null) {
+			return;
+		}
 		IMessage m = new Message(me, System.currentTimeMillis(), text);
 		network.sendMessage(m);
 		history.addMessage(m);
@@ -152,6 +166,9 @@ public class Controller {
 	}
 	
 	public List<IMessage> getHistory() throws IOException {
-		return history.getMessages();
+		if (history != null) {
+			return history.getMessages();
+		}
+		return new LinkedList<IMessage>();
 	}
 }

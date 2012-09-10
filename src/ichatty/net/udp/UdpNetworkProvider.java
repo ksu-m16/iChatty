@@ -22,6 +22,16 @@ public class UdpNetworkProvider implements INetworkProvider {
 		public short port = 1234;
 		public IMessageSerializer serializer = JsonMessageSerializer.getInstance();
 		
+		public Settings setPort(short port) {
+			this.port = port;
+			return this;
+		}
+		
+		public Settings setSerializer(IMessageSerializer ms) {
+			this.serializer = ms;
+			return this;
+		}
+		
 		@Override
 		protected Object clone() {
 			Settings s = new Settings();

@@ -9,13 +9,23 @@ import ichatty.serialize.json.JsonMessageSerializer;
 public class FileHistoryProvider implements IHistoryProvider {
 	
 	static public class Settings {
-		public String basePath = "./history/";
+		public String dataPath = "./history/";
 		public IMessageSerializer serializer = JsonMessageSerializer.getInstance();
+		
+		public Settings setDataPath(String dataPath) {
+			this.dataPath = dataPath;
+			return this;
+		}
+		
+		public Settings setSerializer(IMessageSerializer ms) {
+			this.serializer = ms;
+			return this;
+		}
 		
 		@Override
 		protected Object clone() {
 			Settings s = new Settings();
-			s.basePath = this.basePath;
+			s.dataPath = this.dataPath;
 			s.serializer = this.serializer;
 			return s;
 		}
@@ -39,7 +49,7 @@ public class FileHistoryProvider implements IHistoryProvider {
 		
 	@Override
 	public IHistory getHistory(IUser u) {
-		String fileName = settings.basePath + "/" + user.getId() + "/" + u.getId() + ".history";
+		String fileName = settings.dataPath + "/" + user.getId() + "/" + u.getId() + "/history.json";
 		return new FileHistory(fileName, settings.serializer);
 	}
 
